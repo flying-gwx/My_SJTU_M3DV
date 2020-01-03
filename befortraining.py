@@ -112,9 +112,9 @@ class Getinput(object):
             result=delta.reshape(self.one_output,self.one_output,self.one_output) 
         a=torch.rand(1).item()
         if self.train:
-            if a> 0.15:
+            if a> 0.1:
                 result=np.rot90(result,1,(1,2))
-            elif a < 0.3:
+            elif a < 0.2:
                 result=np.flip(result,1)
             else:
                 result=result

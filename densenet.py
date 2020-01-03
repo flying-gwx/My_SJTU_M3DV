@@ -1,18 +1,13 @@
 import torch
 
 import torch.nn as nn
-import torch.optim as optim
+
 
 import torch.nn.functional as F
-from torch.autograd import Variable
 
-import torchvision.datasets as dset
-import torchvision.transforms as transforms
-from torch.utils.data import DataLoader
 
-import torchvision.models as models
 
-import sys
+
 import math
 
 '''
@@ -90,6 +85,7 @@ class DenseNet(nn.Module):
 
         self.bn1 = nn.BatchNorm3d(nChannels)
         self.fc = nn.Linear(nChannels, nClasses)
+        self.dr=nn.Dropout(0.5)
 
         for m in self.modules():
             if isinstance(m, nn.Conv3d):
@@ -117,6 +113,9 @@ class DenseNet(nn.Module):
         out = self.trans1(self.dense1(out))
         out = self.trans2(self.dense2(out))
         out = self.dense3(out)
+        
         out = torch.squeeze(F.avg_pool3d(F.relu(self.bn1(out)), 8))
-        out = F.softmax(self.fc(out))
+        out=self.fc(self.dr(out))
+        
+#        out = F.log_softmax(self.fc(out),dim=1)
         return out

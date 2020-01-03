@@ -111,9 +111,9 @@ def test(cuda, epoch, net, testLoader, optimizer):
 
 def main():
     #这里要改回来
-    batch=32
+    batch=4
     test_err=100
-    set_epoch=100
+    set_epoch=80
     PATH = './result/learningnet'
     out=open('output.txt','w')
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -125,7 +125,7 @@ def main():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
     train_dataset = be.TrainDataset('train_val.csv',transform=transforms.Compose([be.Getinput(32),be.ToTensor()]));
-    test_dataset =be.TrainDataset ('val.csv', transform=transforms.Compose([be.Getinput(32),be.ToTensor()]))
+    test_dataset =be.TrainDataset ('val.csv', transform=transforms.Compose([be.Getinput(32,train=False),be.ToTensor()]))
     train_dataloader= DataLoader(train_dataset,batch_size=batch,shuffle=True,num_workers=0)
     test_dataloader=DataLoader(test_dataset,batch_size=20,shuffle=True,num_workers=0)
     exam_dataset=be.TrainDataset('exam.csv',train=False,transform=transforms.Compose([be.Getinput(32,train=False),be.ToTensor()]))
@@ -138,8 +138,8 @@ def main():
         
         if test_err > a:
             test_err = a 
-            PATH=PATH+str(epoch)+'.pth'
-            torch.save(net.state_dict(), PATH)
+            
+            torch.save(net.state_dict(), PATH+str(epoch)+'.pth')
             print('saved\n')
             result1=[]
             result2=[]
@@ -173,93 +173,7 @@ def main():
         if test_err<18:
             break
     out.close()
-            
-      #  os.system('./plot.py {} &'.format(args.save)) 
-        
-        #这里开始测试数据
-    
-    #关闭输出文件
 
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument('--batchSz', type=int, default=64)
-#     parser.add_argument('--nEpochs', type=int, default=300)
-#     parser.add_argument('--no-cuda', action='store_true')
-#     parser.add_argument('--save')
-#     parser.add_argument('--seed', type=int, default=1)
-#     parser.add_argument('--opt', type=str, default='sgd',
-#                         choices=('sgd', 'adam', 'rmsprop'))
-#     args = parser.parse_args()
-
-#     args.cuda = not args.no_cuda and torch.cuda.is_available()
-#     args.save = args.save or 'work/densenet.base'
-#     setproctitle.setproctitle(args.save)
-
-#     torch.manual_seed(args.seed)
-#     if args.cuda:
-#         torch.cuda.manual_seed(args.seed)
-
-#     if os.path.exists(args.save):
-#         shutil.rmtree(args.save)
-#     os.makedirs(args.save, exist_ok=True)
-
-#     normMean = [0.49139968, 0.48215827, 0.44653124]
-#     normStd = [0.24703233, 0.24348505, 0.26158768]
-#     normTransform = transforms.Normalize(normMean, normStd)
-
-#     trainTransform = transforms.Compose([
-#         transforms.RandomCrop(32, padding=4),
-#         transforms.RandomHorizontalFlip(),
-#         transforms.ToTensor(),
-#         normTransform
-#     ])
-#     testTransform = transforms.Compose([
-#         transforms.ToTensor(),
-#         normTransform
-#     ])
-
-#     kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
-#     trainLoader = DataLoader(
-#         dset.CIFAR10(root='cifar', train=True, download=True,
-#                      transform=trainTransform),
-#         batch_size=args.batchSz, shuffle=True, **kwargs)
-#     testLoader = DataLoader(
-#         dset.CIFAR10(root='cifar', train=False, download=True,
-#                      transform=testTransform),
-#         batch_size=args.batchSz, shuffle=False, **kwargs)
-
-#     net = densenet.DenseNet(growthRate=12, depth=100, reduction=0.5,
-#                             bottleneck=True, nClasses=10)
-# '''
-# 上面没什么用的样子
-# '''
-#     print('  + Number of params: {}'.format(
-#         sum([p.data.nelement() for p in net.parameters()])))
-#     if args.cuda:
-#         net = net.cuda()
-
-#     if args.opt == 'sgd':
-#         optimizer = optim.SGD(net.parameters(), lr=1e-1,
-#                             momentum=0.9, weight_decay=1e-4)
-#     elif args.opt == 'adam':
-#         optimizer = optim.Adam(net.parameters(), weight_decay=1e-4)
-#     elif args.opt == 'rmsprop':
-#         optimizer = optim.RMSprop(net.parameters(), weight_decay=1e-4)
-
-#     trainF = open(os.path.join(args.save, 'train.csv'), 'w')
-#     testF = open(os.path.join(args.save, 'test.csv'), 'w')
-# '''
-# 上面还是没什么用，dataloader和dataset我都写好了
-# '''
-#     for epoch in range(1, args.nEpochs + 1):
-#         adjust_opt(args.opt, optimizer, epoch)
-#         train(args, epoch, net, trainLoader, optimizer, trainF)
-#         test(args, epoch, net, testLoader, optimizer, testF)
-#         torch.save(net, os.path.join(args.save, 'latest.pth'))
-#         os.system('./plot.py {} &'.format(args.save))
-
-#     trainF.close()
-#     testF.close()
-    
 
 if __name__=='__main__':
     main()

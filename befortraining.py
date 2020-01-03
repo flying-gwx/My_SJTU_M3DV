@@ -85,9 +85,13 @@ class Getinput(object):
         
     def __call__(self, sample):
         for_list=list(sample.keys())
+        #用于判断是否为exam
+        flag=False
      #   ipdb.set_trace()
         if len(for_list)>= 4:
             data, mask,label = sample['data'], sample['mask'],sample['label']
+            flag=True
+            
         else:
             data,mask= sample['data'],sample['mask']
         delta=data[mask]
@@ -125,7 +129,10 @@ class Getinput(object):
         if self.train:
             return {'data': result, 'label': label,'size':self.size}
         else:
-            return {'data': result, 'size':self.size,'name':self.name}
+            if flag:
+                return {'data': result, 'label': label,'size':self.size}
+            else:
+                return {'data': result, 'size':self.size,'name':self.name}
             
 class ToTensor(object):
     """Convert ndarrays in sample to Tensors."""

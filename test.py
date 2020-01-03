@@ -7,23 +7,28 @@ Created on Sat Dec 21 08:23:25 2019
 import densenet as de
 import torch
 import pandas as pd
-import learning as be
+import befortraining as be
 import torchvision.transforms as transforms
 import numpy as np
-import ipdb
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-net = de.DenseNet(growthRate=12, depth=10, reduction=0.5,
-                            bottleneck=True, nClasses=2).to(device)
+import torch.nn.functional as F
 
-PATH = './learningnet22.pth'
-#ipdb.set_trace()
-net.load_state_dict(torch.load(PATH))
+#test.py文件在windows系统下使用
+#在GPU可用时使用GPU
+
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+net = de.DenseNet(growthRate=16, depth=40, reduction=0.5,
+                            bottleneck=True, nClasses=2).to(device)
+#
+PATH = './learningnet50.pth'
 net.eval()
+net.load_state_dict(torch.load(PATH))
+#通过exam.csv获取测试集的病人编号
 exam_dataset=be.TrainDataset('exam.csv',train=False,transform=transforms.Compose([be.Getinput(32,train=False),be.ToTensor()]))
 result1=[]
 result2=[]
 name=[]
-train_dataset = be.TrainDataset('train_val.csv',transform=transforms.Compose([be.Getinput(32),be.ToTensor()]));
+array=[]
 for data in exam_dataset:
     value = data['input'].unsqueeze(0)
     value=value.unsqueeze(1).to(device)
@@ -32,13 +37,22 @@ for data in exam_dataset:
         output = net(value)
     result1.append(output[0].item())
     result2.append(output[1].item())
-    #写进数组中
-array=[]
+    #判断分数
 array.append(name)
-array.append(result2)
-array=np.array(array)
-array=array.T
+array1=[]
+array1.append(result1)
+array1.append(result2)
+array1=np.array(array1).T
+result_tensor=torch.from_numpy(array1)
+#分数使用softmax函数进行转换
+
+result_tensor=F.softmax(result_tensor,1)
+result_numpy=np.array(result_tensor)
+array.append(list(result_numpy[...,1]))
+array=np.array(array).T
 save = pd.DataFrame(array, columns = ['Id','Predicted']) 
-save.to_csv('exam_result_22.csv',index=False)
+
+save = pd.DataFrame(array, columns = ['Id','Predicted']) 
+save.to_csv('for_final.csv',index=False)
 another_save=pd.DataFrame(result1,columns=['predicted'])
-another_save.to_csv('another.csv',index=False)
+another_save.to_csv('another_final.csv',index=False)

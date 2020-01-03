@@ -53,6 +53,4 @@ array=np.array(array).T
 save = pd.DataFrame(array, columns = ['Id','Predicted']) 
 
 save = pd.DataFrame(array, columns = ['Id','Predicted']) 
-save.to_csv('for_final.csv',index=False)
-another_save=pd.DataFrame(result1,columns=['predicted'])
-another_save.to_csv('another_final.csv',index=False)
+save.to_csv('submission.csv',index=False)
